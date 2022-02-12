@@ -1,3 +1,5 @@
+import json
+
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 import data
@@ -103,35 +105,71 @@ def all_users():
             )
         return jsonify(users_response)
     elif request.method == 'POST':
-        new_user = User("id": user.id,
-                 "first_name": user.first_name,
-                 "last_name": user.last_name,
-                 "age": user.age,
-                 "email": user.email,
-                 "role": user.role,
-                 "phone": user.phone
-#
-#         )
-#
-#
-#
-#
-#
-#
-# @app.route("/guides/<int:gid>")
-# def get_guide(gid):
-#     guide = Guide.query.get(gid)
-#     if guide is None:
-#         return "guide not found "
-#     return jsonify({
-#         "id": guide.id,
-#         "surname": guide.surname,
-#         "full_name": guide.full_name,
-#         "tours_count": guide.tours_count,
-#         "bio": guide.bio,
-#         "is_pro": guide.is_pro,
-#         "company": guide.company
-#     })
+        data = request.json
+        new_user = User(
+            first_name=data.get('first_name'),
+            last_name=data.get('last_name'),
+            age=data.get('age'),
+            email=data.get('email'),
+            role=data.get('role'),
+            phone=data.get('phone'),
+            )
+        db.session.commit()
+        return jsonify({
+            "id": new_user.id,
+            "first_name": new_user.first_name,
+            "last_name": new_user.last_name,
+            "age": new_user.age,
+            "email": new_user.email,
+            "role": new_user.role,
+            "phone": new_user.phone,
+            })
+
+
+@app.route("/users/<int:uid>", methods=['GET', 'PUT', 'DELETE'])
+def get_user(uid: int):
+    if request.method == 'GET':
+        user = User.query.get(uid)
+        if user is None:
+            return "user not found"
+        return jsonify({
+            "id": user.id,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "age": user.age,
+            "email": user.email,
+            "role": user.role,
+            "phone": user.phone,
+            })
+    elif request.method == "DELETE":
+        user = User.query.get(uid)
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify(" ")
+    elif request.method == "PUT":
+        user_data = json.loads(request.data)
+        user = User.query.get(uid)
+        user.first_name = user_data['first_name']
+        user.last_name = user_data['last_name']
+        user.age = user_data['age']
+        user.email = user_data['email']
+        user.role = user_data['role']
+        user.phone = user_data['phone']
+
+        db.session.add(user)
+        db.session.commit()
+        return jsonify(" ")
+
+
+
+
+
+
+
+
+
+
+
 #
 #
 # @app.route("/guides/<int:gid>/delete")
