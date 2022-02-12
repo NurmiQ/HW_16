@@ -234,6 +234,60 @@ def get_orders(oid: int):
         db.session.commit()
         return jsonify(" ")
 
+@app.route("/offers", methods=["POST", "GET"])
+def all_offers():
+    if request.method == 'GET':
+        offers_response = []
+        offers = Offer.query.all()
+        for offer in offers:
+            offers_response.append(
+                {"id": offer.id,
+                 "order_id": offer.order_id,
+                 "executor_id": offer.executor_id,
+                 }
+            )
+        return jsonify(offers_response)
+    elif request.method == 'POST':
+        data = request.json
+        new_offer = Offer(
+            order_id=data.get('order_id'),
+            executor_id=data.get('executor_id'),
+            )
+        db.session.commit()
+        return jsonify({
+            "id": new_offer.id,
+            "order_id": new_offer.order_id,
+            "executor_id": new_offer.executor_id,
+            })
+
+
+@app.route("/offers/<int:oid>", methods=['GET', 'PUT', 'DELETE'])
+def get_offers(oid: int):
+    if request.method == 'GET':
+        offer = Offer.query.get(oid)
+        if offer is None:
+            return "offer not found"
+        return jsonify({
+            "id": offer.id,
+            "order_id": offer.order_id,
+            "executor_id": offer.executor_id,
+            })
+    elif request.method == "DELETE":
+        offer = Offer.query.get(oid)
+        db.session.delete(offer)
+        db.session.commit()
+        return jsonify(" ")
+    elif request.method == "PUT":
+        offer_data = json.loads(request.data)
+        offer = User.query.get(oid)
+        offer.order_id = offer_data['order_id']
+        offer.executor_id = offer_data['executor_id']
+
+        db.session.add(offer)
+        db.session.commit()
+        return jsonify(" ")
+
+
 
 
 
