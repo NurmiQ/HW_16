@@ -161,6 +161,79 @@ def get_user(uid: int):
         return jsonify(" ")
 
 
+@app.route("/orders", methods=["POST", "GET"])
+def all_orders():
+    if request.method == 'GET':
+        orders_response = []
+        orders = Order.query.all()
+        for order in orders:
+            orders_response.append(
+                {"id": order.id,
+                 "name": order.name,
+                 "description": order.description,
+                 "start_date": order.start_date,
+                 "end_date": order.end_date,
+                 "address": order.address,
+                 "price": order.price,
+                 }
+            )
+        return jsonify(orders_response)
+    elif request.method == 'POST':
+        data = request.json
+        new_order = Order(
+            name=data.get('name'),
+            description=data.get('description'),
+            start_date=data.get('start_date'),
+            end_date=data.get('end_date'),
+            address=data.get('address'),
+            price=data.get('price'),
+            )
+        db.session.commit()
+        return jsonify({
+            "id": new_order.id,
+            "name": new_order.name,
+            "description": new_order.description,
+            "start_date": new_order.start_date,
+            "end_date": new_order.end_date,
+            "address": new_order.address,
+            "price": new_order.price,
+            })
+
+
+@app.route("/orders/<int:oid>", methods=['GET', 'PUT', 'DELETE'])
+def get_orders(oid: int):
+    if request.method == 'GET':
+        order = Order.query.get(oid)
+        if order is None:
+            return "order not found"
+        return jsonify({
+            "id": order.id,
+            "name": order.name,
+            "description": order.description,
+            "start_date": order.start_date,
+            "end_date": order.end_date,
+            "address": order.address,
+            "price": order.price,
+            })
+    elif request.method == "DELETE":
+        order = Order.query.get(oid)
+        db.session.delete(order)
+        db.session.commit()
+        return jsonify(" ")
+    elif request.method == "PUT":
+        order_data = json.loads(request.data)
+        order = Order.query.get(oid)
+        order.name = order_data['name']
+        order.description = order_data['description']
+        order.start_date = order_data['start_date']
+        order.end_date = order_data['end_date']
+        order.address = order_data['address']
+        order.price = order_data['price']
+
+        db.session.add(order)
+        db.session.commit()
+        return jsonify(" ")
+
 
 
 
