@@ -1,8 +1,8 @@
 import json
-
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 import data
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
@@ -47,7 +47,6 @@ class User(db.Model):
 
 db.create_all()
 
-
 for user_data in data.users:
     new_user = User(
         id=user_data['id'],
@@ -60,7 +59,6 @@ for user_data in data.users:
     )
     db.session.add(new_user)
     db.session.commit()
-
 
 for order_data in data.orders:
     new_order = Order(
@@ -286,48 +284,6 @@ def get_offers(oid: int):
         db.session.add(offer)
         db.session.commit()
         return jsonify(" ")
-
-
-
-
-
-
-
-
-
-
-
-#
-#
-# @app.route("/guides/<int:gid>/delete")
-# def delete_guide(gid):
-#     guide = Guide.query.get(gid)
-#     db.session.delete(guide)
-#     db.session.commit()
-#     return jsonify(" ")
-#
-#
-# @app.route("/guides", methods=['POST'])
-# def create_guide():
-#     data = request.json
-#     guide = Guide(
-#         surname=data.get('surname'),
-#         full_name=data.get('full_name'),
-#         tours_count=data.get('tours_count'),
-#         bio=data.get('bio'),
-#         is_pro=data.get('is_pro'),
-#         company=data.get('company')
-#     )
-#     db.session.commit()
-#     return jsonify({
-#         "id": guide.id,
-#         "surname": guide.surname,
-#         "full_name": guide.full_name,
-#         "tours_count": guide.tours_count,
-#         "bio": guide.bio,
-#         "is_pro": guide.is_pro,
-#         "company": guide.company
-#     })
 
 
 if __name__ == "__main__":
